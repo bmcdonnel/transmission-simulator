@@ -19,5 +19,10 @@ def main():
 
   print "Simulating throttle schedule from " + sys.argv[4]
 
+  for i in range(10):
+    print "throttle " + str(i) + "%, " + str(transmission.GetGear())
+    engine.StepOnce(i)
+    print str(vehicle_dynamics.GetFinalDriveSpeed()) + " RPM, " + str(vehicle_dynamics.GetVehicleSpeed()) + " MPH"
+
 if __name__ == "__main__":
   main()

@@ -1,27 +1,35 @@
 class Engine(object):
   def __init__(self):
-    _torque_converter = None
-    _engine_speed = 0
-    _engine_impeller_moment = 1
+    self._torque_converter = None
+
+    self._engine_speed = 0
+    self._engine_impeller_moment = 1
 
   def Initialize(self, engine_model_filename, torque_converter):
-    _engine_model = self._LoadEngineModelFromFile(engine_model_filename)
-    _torque_converter = torque_converter
+    self._engine_model = self._LoadEngineModelFromFile(engine_model_filename)
+    self._torque_converter = torque_converter
 
   def StepOnce(self, throttle_position):
-    engine_torque = _GetEngineTorque(throttle_position, _engine_speed)
-    impeller_torque = _torque_converter.GetImpellerTorque()
+    engine_torque = self._GetEngineTorque(throttle_position, self._engine_speed)
+    impeller_torque = self._torque_converter.GetImpellerTorque()
 
+    print "impeller torque: " + str(impeller_torque)
     # TODO integrate this?
-    _engine_speed = (engine_torque - impeller_torque) / _engine_impeller_moment
+    self._engine_speed = (engine_torque - impeller_torque) / self._engine_impeller_moment
+
+    # engine can't rev higher than 5000 RPM
+    if self._engine_speed > 5000:
+      self._engine_speed = 5000
+
+    self._torque_converter.StepOnce()
 
   def GetEngineSpeed(self):
-    return _current_RPM
+    return self._engine_speed
 
   def _GetEngineTorque(self, throttle_position, rpm):
     # TODO look up torque in engine model map loaded from file
-    # return _engine_model[throttle_position][rpm]
-    return 0
+    # return self._engine_model[throttle_position][rpm]
+    return 1
 
   def _LoadEngineModelFromFile(self, filename):
     model = dict()
