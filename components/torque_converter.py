@@ -17,6 +17,10 @@ class TorqueConverter(object):
     return self._turbine_torque
 
   def StepOnce(self):
+    self._impeller_torque = self._engine.GetEngineTorque()
+
+    """
+    # TODO these equations aren't quite right
     impeller_speed = self._engine.GetEngineSpeed()
     turbine_speed = self._transmission.GetTransmissionSpeed()
     speed_ratio = 1
@@ -28,6 +32,7 @@ class TorqueConverter(object):
     self._impeller_torque = impeller_speed / speed_ratio
     self._impeller_torque *= self._impeller_torque
     self._turbine_torque = self._impeller_torque
+    """
 
     self._transmission.StepOnce()
 
