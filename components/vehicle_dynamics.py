@@ -1,16 +1,22 @@
+import logging
+import math
+
 class VehicleDynamics(object):
   def __init__(self):
     self._transmission = None
 
+    self._friction_coefficient = 0.015
+    self._drag_coefficient = 0.30 # typical for a modern SUV
     self._final_drive_ratio = 4.10
     self._input_speed = 0
+    self._brake_torque = 1000
 
     # TODO units and order of magnitude
     self._vehicle_load = 1000
     self._vehicle_inertia = 1
-    self._wheel_speed = 1      # RPM
-    self._wheel_radius = 1     # feet
-    self._vehicle_linear_velocity = 0       # MPH
+    self._wheel_speed = 1              # RPM
+    self._wheel_radius = 1             # feet
+    self._vehicle_linear_velocity = 0  # MPH
 
   def Initialize(self, transmission):
     self._transmission = transmission
@@ -23,11 +29,18 @@ class VehicleDynamics(object):
 
   def StepOnce(self):
     # TODO what about when speed is 0
-    self._input_speed = self._transmission.GetTransmissionTorque() * self._final_drive_ratio - self._vehicle_load
-    self._input_speed /= self._vehicle_inertia
-    self._input_speed /= self._wheel_speed
+    sum_of_torques = ((self._transmission.GetTransmissionTorque() * self._final_drive_ratio) - self._vehicle_load)
+    self._input_speed = sum_of_torques / self._vehicle_inertia
 
-    self._vehicle_load = (self._friction_coefficient +
-                          self._drag_coefficient * self._vehicle_linear_velocity * self._vehicle_linear_velocity +
-                          self._brake_torque)
-    self._vehicle_load *= self._vehicle_linear_velocity
+    """
+    if self._wheel_speed != 0:
+      self._input_speed /= self._wheel_speed
+    """
+
+    self._vehicle_load = ((self._friction_coefficient) +
+                          (self._drag_coefficient * self._vehicle_linear_velocity * self._vehicle_linear_velocity) +
+                          (self._brake_torque))
+    self._vehicle_load *= math.fabs(self._vehicle_linear_velocity)
+
+    logging.info("final drive speed {}, vehicle load {}".format(self._input_speed, self._vehicle_load))
+

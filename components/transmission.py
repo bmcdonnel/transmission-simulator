@@ -1,3 +1,5 @@
+import logging
+
 class Transmission(object):
   def __init__(self):
     self._torque_converter = None
@@ -34,4 +36,8 @@ class Transmission(object):
 
     self._input_speed = ratio * self._vehicle_dynamics.GetFinalDriveSpeed()
     self._output_torque = ratio * self._torque_converter.GetTurbineTorque()
+
+    logging.info("input speed {}, output torque {}".format(self._input_speed, self._output_torque))
+
+    self._vehicle_dynamics.StepOnce()
 

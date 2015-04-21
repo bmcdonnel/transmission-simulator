@@ -29,8 +29,8 @@ def main():
 
   logging.info("Running throttle schedule from " + sys.argv[1])
 
-  while(True):
-    engine.StepOnce(0)
+  for i in range(10):
+    engine.StepOnce(i)
 
 if __name__ == "__main__":
   main()

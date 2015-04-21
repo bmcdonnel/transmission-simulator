@@ -1,3 +1,5 @@
+import logging
+
 class TorqueConverter(object):
   def __init__(self):
     self_engine = None
@@ -19,6 +21,14 @@ class TorqueConverter(object):
   def StepOnce(self):
     self._impeller_torque = self._engine.GetEngineTorque()
 
+    transmission_speed = self._transmission.GetTransmissionSpeed()
+    engine_speed = self._engine.GetEngineSpeed()
+    speed_ratio = transmission_speed / engine_speed
+
+    logging.info("turbine-speed:impeller-speed = {}:{} = {}".format(transmission_speed, engine_speed, speed_ratio))
+
+    self._turbine_torque = self._TorqueTransferMultiplier(speed_ratio) * self._impeller_torque
+
     """
     # TODO these equations aren't quite right
     impeller_speed = self._engine.GetEngineSpeed()
@@ -35,4 +45,15 @@ class TorqueConverter(object):
     """
 
     self._transmission.StepOnce()
+
+  def _TorqueTransferMultiplier(self, speed_ratio):
+    # multiply torque when the turbine is spinning up
+    if speed_ratio < 0.10:
+      return 2
+    elif speed_ratio < 0.20:
+      return 1.75
+    elif speed_ratio < 0.30:
+      return 1.25
+    else:
+      return 1
 
