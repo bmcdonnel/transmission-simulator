@@ -52,13 +52,14 @@ class Engine(object):
     total_torque_values = 0
 
     with open(filename) as f:
-      # drop the first item of the first line since its just a spacer
+      # drop the first item of the first line since its just a
+      # spacer representing the throttle position column
       rpm_values = f.readline().split()[1:]
       rpm_resolution = int(rpm_values[1]) - int(rpm_values[0])
 
       logging.info(str(len(rpm_values)) + " RPM values, resolution of " + str(rpm_resolution))
 
-      # count the rest of the lines of the file
+      # count the rest of the lines remaining in the file (excluding the first line of RPM values)
       throttle_position_count = sum(1 for line in f)
 
       logging.info(str(throttle_position_count) + " throttle position values")
@@ -77,13 +78,15 @@ class Engine(object):
         # the rest are torque values for each RPM at that throttle position
         torque_values = line.split()[1:]
 
-        for i in range(len(rpm_values)):
-          rpm = int(rpm_values[i])
+        if len(torque_values) != len(rpm_values):
+          raise Exception('Not enough torque values for throttle position ' + str(throttle_position))
 
-          if i >= len(torque_values):
-            self._torque_map[throttle_position][rpm] = 0
-          else:
-            self._torque_map[throttle_position][rpm] = int(torque_values[i])
+        for i in range(len(rpm_values) - 1):
+          # grab two rpm values
+          rpm_value = int(rpm_values[i])
+          next_rpm_value = int(rpm_values[i + 1])
+
+          self._torque_map[throttle_position][rpm_value] = int(torque_values[i])
 
     logging.info("Loaded " + str(total_torque_values) + " torque values")
 
