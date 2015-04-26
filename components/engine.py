@@ -122,6 +122,7 @@ class Engine(object):
 
     for i in range(len(x)):
       for j in range(len(y)):
+        # is this correct?
         Z[i][j] = self._torque_map[x[i]][y[j]]
 
     for i in Z:
@@ -131,6 +132,6 @@ class Engine(object):
     plot = fig.add_subplot(111, projection='3d')
 
     X, Y = numpy.meshgrid(x, y)
-    plot.plot_surface(X, Y, Z)
+    plot.plot_surface(X, Y, Z, rstride=1, cstride=100)
 
     plt.show()
