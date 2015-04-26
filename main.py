@@ -29,8 +29,13 @@ def main():
 
   logging.info("Running throttle schedule from " + sys.argv[1])
 
-  for i in range(10):
+  """
+  for i in range(20, 110, 10):
     engine.StepOnce(i)
+  """
+
+  while(True):
+    engine.StepOnce(20)
 
 if __name__ == "__main__":
   main()
