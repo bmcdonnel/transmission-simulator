@@ -9,7 +9,7 @@ class VehicleDynamics(object):
     self._drag_coefficient = 0.30 # typical for a modern SUV
     self._final_drive_ratio = 4.10
     self._input_speed = 0
-    self._brake_torque = 1000
+    self._brake_torque = 6000
 
     # TODO units and order of magnitude
     self._vehicle_load = 1000
@@ -43,7 +43,7 @@ class VehicleDynamics(object):
     self._vehicle_load = ((self._friction_coefficient) +
                           (self._drag_coefficient * self._vehicle_linear_velocity * self._vehicle_linear_velocity) +
                           (self._brake_torque))
-    self._vehicle_load *= math.fabs(self._vehicle_linear_velocity)
+    # self._vehicle_load *= math.fabs(self._vehicle_linear_velocity) # is this needed
 
     logging.info("final drive speed {}, vehicle load {}".format(self._input_speed, self._vehicle_load))
 

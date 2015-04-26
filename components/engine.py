@@ -1,9 +1,5 @@
 import logging
 
-import numpy
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
 class Engine(object):
   def __init__(self):
     self._torque_converter = None
@@ -13,14 +9,14 @@ class Engine(object):
     self._engine_torque = 0
     self._engine_impeller_moment = 0.02 # 10 inch torque converter
 
+    self._engine_speed_steps = []
+    self._torque_steps = []
+
   def Initialize(self, torque_map_filename, torque_converter):
     logging.info("Inititalizing Engine from " + torque_map_filename)
 
     self._LoadTorqueMapFromFile(torque_map_filename)
     self._torque_converter = torque_converter
-
-    logging.info("Close plot to continue simulation...");
-    self._PlotTorqueMap()
 
   def Start(self):
     self._engine_speed = 800
@@ -44,13 +40,25 @@ class Engine(object):
     if self._engine_speed > 5000:
       self._engine_speed = 5000
 
+    self._engine_speed_steps.append(self._engine_speed)
+    self._torque_steps.append(self._engine_torque)
+
     self._torque_converter.StepOnce()
 
   def GetEngineSpeed(self):
     return self._engine_speed
 
+  def GetEngineSpeedSteps(self):
+    return self._engine_speed_steps
+
   def GetEngineTorque(self):
     return self._engine_torque
+
+  def GetTorqueSteps(self):
+    return self._torque_steps
+
+  def GetTorqueMap(self):
+    return self._torque_map
 
   def _GetEngineTorque(self, throttle_position, rpm):
     return self._torque_map[throttle_position][rpm]
@@ -113,26 +121,3 @@ class Engine(object):
 
     logging.info("Loaded " + str(total_torque_values) + " torque values")
 
-  def _PlotTorqueMap(self):
-    x = self._torque_map.keys()
-    x.sort()
-    y = self._torque_map.values()[0].keys()
-    y.sort()
-
-    Z = numpy.zeros((len(x), len(y)))
-
-    for i in range(len(x)):
-      for j in range(len(y)):
-        # is this correct?
-        Z[i][j] = self._torque_map[x[i]][y[j]]
-
-    for i in Z:
-      print i
-
-    fig = plt.figure()
-    plot = fig.add_subplot(111, projection='3d')
-
-    X, Y = numpy.meshgrid(x, y)
-    plot.plot_surface(X, Y, Z, rstride=1, cstride=100)
-
-    plt.show()
