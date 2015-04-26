@@ -1,5 +1,9 @@
 import logging
 
+import numpy
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 class Engine(object):
   def __init__(self):
     self._torque_converter = None
@@ -11,7 +15,10 @@ class Engine(object):
 
   def Initialize(self, torque_map_filename, torque_converter):
     logging.info("Inititalizing Engine from " + torque_map_filename)
+
     self._LoadTorqueMapFromFile(torque_map_filename)
+    self._PlotTorqueMap()
+
     self._torque_converter = torque_converter
 
   def Start(self):
@@ -105,3 +112,25 @@ class Engine(object):
 
     logging.info("Loaded " + str(total_torque_values) + " torque values")
 
+  def _PlotTorqueMap(self):
+    x = self._torque_map.keys()
+    x.sort()
+    y = self._torque_map.values()[0].keys()
+    y.sort()
+
+    Z = numpy.zeros((len(x), len(y)))
+
+    for i in range(len(x)):
+      for j in range(len(y)):
+        Z[i][j] = self._torque_map[x[i]][y[j]]
+
+    for i in Z:
+      print i
+
+    fig = plt.figure()
+    plot = fig.add_subplot(111, projection='3d')
+
+    X, Y = numpy.meshgrid(x, y)
+    plot.plot_surface(X, Y, Z)
+
+    plt.show()
