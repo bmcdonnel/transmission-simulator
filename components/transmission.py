@@ -34,6 +34,8 @@ class Transmission(object):
   def StepOnce(self):
     ratio = self._gear_ratios[self._gear]
 
+    logging.info("gear {}, ratio {}".format(self._gear, ratio))
+
     self._input_speed = ratio * self._vehicle_dynamics.GetFinalDriveSpeed()
     self._output_torque = ratio * self._torque_converter.GetTurbineTorque()
 

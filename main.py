@@ -27,15 +27,14 @@ def main():
 
   engine.Start()
 
-  logging.info("Running throttle schedule from " + sys.argv[1])
+  # logging.info("Running throttle schedule from " + sys.argv[1])
 
-  """
-  for i in range(20, 110, 10):
-    engine.StepOnce(i)
-  """
-
-  while(True):
-    engine.StepOnce(20)
+  logging.info("Step 1")
+  engine.StepOnce(20)
+  logging.info("Step 2")
+  engine.StepOnce(20)
+  logging.info("Step 3")
+  engine.StepOnce(20)
 
 if __name__ == "__main__":
   main()

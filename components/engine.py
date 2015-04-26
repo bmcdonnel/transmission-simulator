@@ -17,9 +17,10 @@ class Engine(object):
     logging.info("Inititalizing Engine from " + torque_map_filename)
 
     self._LoadTorqueMapFromFile(torque_map_filename)
-    self._PlotTorqueMap()
-
     self._torque_converter = torque_converter
+
+    logging.info("Close plot to continue simulation...");
+    self._PlotTorqueMap()
 
   def Start(self):
     self._engine_speed = 800

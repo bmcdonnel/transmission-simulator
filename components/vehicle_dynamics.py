@@ -28,9 +28,12 @@ class VehicleDynamics(object):
     return self._vehicle_linear_velocity
 
   def StepOnce(self):
+    sum_of_torques = (self._transmission.GetTransmissionTorque() * self._final_drive_ratio) - self._vehicle_load
+
+    logging.info("(transmission_torque * final_drive_ratio) - vehicle_load = ({} * {}) - {} = {}".format(self._transmission.GetTransmissionTorque(), self._final_drive_ratio, self._vehicle_load, sum_of_torques))
+
     # TODO what about when speed is 0
-    sum_of_torques = ((self._transmission.GetTransmissionTorque() * self._final_drive_ratio) - self._vehicle_load)
-    self._input_speed = sum_of_torques / self._vehicle_inertia
+    self._input_speed = max(0, sum_of_torques) / self._vehicle_inertia
 
     """
     if self._wheel_speed != 0:

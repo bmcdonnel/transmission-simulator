@@ -24,10 +24,12 @@ class TorqueConverter(object):
     transmission_speed = self._transmission.GetTransmissionSpeed()
     engine_speed = self._engine.GetEngineSpeed()
     speed_ratio = transmission_speed / engine_speed
+    torque_multiplier = self._TorqueTransferMultiplier(speed_ratio)
 
     logging.info("turbine-speed:impeller-speed = {}:{} = {}".format(transmission_speed, engine_speed, speed_ratio))
+    logging.info("torque multiplier {}".format(torque_multiplier))
 
-    self._turbine_torque = self._TorqueTransferMultiplier(speed_ratio) * self._impeller_torque
+    self._turbine_torque = torque_multiplier * self._impeller_torque
 
     """
     # TODO these equations aren't quite right
