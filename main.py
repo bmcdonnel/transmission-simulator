@@ -71,7 +71,7 @@ def PlotTorqueMap(torque_map):
   z = numpy.array([fun(i,j) for i,j in zip(numpy.ravel(X), numpy.ravel(Y))])
   Z = z.reshape(X.shape)
 
-  plot.plot_surface(X, Y, Z)
+  plot.plot_surface(X, Y, Z, rstride=100, cstride=100)
   plot.set_ylabel('engine speed (RPM)')
   plot.set_xlabel('throttle position (%)')
   plot.set_zlabel('engine torque (lb-ft)')
