@@ -58,20 +58,8 @@ def PlotTorqueMap(torque_map):
 
   x = torque_map.keys()
   x.sort()
-  print x
-
   y = torque_map.values()[0].keys()
   y.sort()
-  print len(y)
-
-  """
-  Z = numpy.empty((len(x), len(y)))
-
-  for i in range(len(x)):
-    for j in range(len(y)):
-      # is this correct?
-      Z[i][j] = torque_map[x[i]][y[j]]
-  """
 
   plot = figure.add_subplot(111, projection='3d')
 
