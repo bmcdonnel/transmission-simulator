@@ -25,11 +25,15 @@ class TorqueConverter(object):
     engine_speed = self._engine.GetEngineSpeed()
     speed_ratio = transmission_speed / engine_speed
     torque_multiplier = self._TorqueTransferMultiplier(speed_ratio)
+    transfer_coefficient = self._TurbineTransferCoefficient(speed_ratio)
 
     logging.info("turbine-speed:impeller-speed = {}:{} = {}".format(transmission_speed, engine_speed, speed_ratio))
-    logging.info("torque multiplier {}".format(torque_multiplier))
 
-    self._turbine_torque = torque_multiplier * self._impeller_torque
+    self._turbine_torque = torque_multiplier * transfer_coefficient * self._impeller_torque
+    logging.info("multiplier * coefficient * impeller_torque = {} * {} * {} = {}".format(torque_multiplier,
+                                                                                         transfer_coefficient,
+                                                                                         self._impeller_torque,
+                                                                                         self._turbine_torque))
 
     """
     # TODO these equations aren't quite right
@@ -58,4 +62,9 @@ class TorqueConverter(object):
       return 1.25
     else:
       return 1
+
+  def _TurbineTransferCoefficient(self, speed_ratio):
+    # 100% transfer when the turbine is stalled
+    # tapers off linearly as the speeds match
+    return 1 - speed_ratio
 
