@@ -5,6 +5,7 @@ class Engine(object):
     self._torque_converter = None
 
     self._torque_map = dict()
+    self._engine_max_speed = 0
     self._engine_speed = 0
     self._engine_torque = 0
     self._engine_impeller_moment = 0.02 # 10 inch torque converter
@@ -29,16 +30,17 @@ class Engine(object):
     self._engine_torque = self._GetEngineTorque(throttle_position, self._engine_speed)
     impeller_torque = self._torque_converter.GetImpellerTorque()
 
-    logging.info("engine torque {}, impeller torque {}".format(self._engine_torque, impeller_torque))
+    logging.info("engine (speed, torque) = ({}, {}), impeller torque {}".format(self._engine_speed, self._engine_torque, impeller_torque))
 
     # TODO integrate this?
     self._engine_speed += int((self._engine_torque - impeller_torque) * self._engine_impeller_moment)
 
-    logging.info("engine speed {}".format(self._engine_speed))
+    logging.info("new engine speed {}".format(self._engine_speed))
 
     # engine can't rev higher than 5000 RPM
-    if self._engine_speed > 5000:
-      self._engine_speed = 5000
+    if self._engine_speed > self._engine_max_speed:
+      logging.info("rev limiting engine to {}".format(self._engine_max_speed))
+      self._engine_speed = self._engine_max_speed
 
     self._engine_speed_steps.append(self._engine_speed)
     self._torque_steps.append(self._engine_torque)
@@ -109,7 +111,7 @@ class Engine(object):
           # force floating point division
           ratio = torque_diff / float(rpm_diff)
 
-          for j in range(rpm_diff):
+          for j in range(rpm_diff + 1):
             rpm = rpm_a + j
             torque = int(torque_a + (ratio * j))
 
@@ -118,6 +120,10 @@ class Engine(object):
 
             self._torque_map[throttle_position][rpm] = torque
             total_torque_values += 1
+
+          if i == len(rpm_values) - 2:
+            # set the max RPM for rev limiting
+            self._engine_max_speed = rpm_b
 
     logging.info("Loaded " + str(total_torque_values) + " torque values")
 

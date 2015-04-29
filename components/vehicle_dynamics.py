@@ -29,6 +29,7 @@ class VehicleDynamics(object):
 
   def SetBrakeTorque(self, brake_torque):
     self._brake_torque = brake_torque
+    self.StepOnce()
 
   def StepOnce(self):
     sum_of_torques = (self._transmission.GetTransmissionTorque() * self._final_drive_ratio) - self._vehicle_load

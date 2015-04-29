@@ -33,9 +33,11 @@ def main():
 
   engine.Start()
 
+  """
   # idle for a bit
   for j in range(1000):
     engine.StepOnce(0)
+  """
 
   logging.info("Setting brake torque to 0")
   # let off the brakes
