@@ -66,5 +66,5 @@ class TorqueConverter(object):
   def _TurbineTransferCoefficient(self, speed_ratio):
     # 100% transfer when the turbine is stalled
     # tapers off linearly as the speeds match
-    return 1 - speed_ratio
+    return (10 - speed_ratio) / 10
 

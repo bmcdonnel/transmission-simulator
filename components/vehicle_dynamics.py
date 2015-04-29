@@ -37,7 +37,7 @@ class VehicleDynamics(object):
     logging.info("(transmission_torque * final_drive_ratio) - vehicle_load = ({} * {}) - {} = {}".format(self._transmission.GetTransmissionTorque(), self._final_drive_ratio, self._vehicle_load, sum_of_torques))
 
     # TODO what about when speed is 0
-    self._input_speed = max(0, sum_of_torques) / self._vehicle_inertia
+    self._input_speed = max(0, sum_of_torques) / (self._vehicle_inertia * self._final_drive_ratio)
 
     """
     if self._wheel_speed != 0:
