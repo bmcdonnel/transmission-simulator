@@ -25,9 +25,9 @@ class TorqueConverter(object):
     transmission_speed = self._transmission.GetTransmissionSpeed()
     transmission_torque = self._transmission.GetTransmissionTorque()
 
-    speed_ratio = transmission_speed / engine_speed
+    speed_ratio = transmission_speed / float(engine_speed)
 
-    torque_ratio = transmission_torque / engine_torque
+    torque_ratio = transmission_torque / float(engine_torque)
     capacity = self._Capacity(engine_speed, engine_torque, speed_ratio)
 
     logging.info("turbine-speed:impeller-speed = {}:{} = {}".format(transmission_speed, engine_speed, speed_ratio))
