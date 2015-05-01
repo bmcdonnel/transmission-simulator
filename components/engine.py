@@ -37,7 +37,6 @@ class Engine(object):
 
     logging.info("new engine speed {}".format(self._engine_speed))
 
-    # engine can't rev higher than 5000 RPM
     if self._engine_speed > self._engine_max_speed:
       logging.info("rev limiting engine to {}".format(self._engine_max_speed))
       self._engine_speed = self._engine_max_speed

@@ -1,4 +1,5 @@
 import logging
+import math
 
 class TorqueConverter(object):
   def __init__(self):
@@ -19,38 +20,38 @@ class TorqueConverter(object):
     return self._turbine_torque
 
   def StepOnce(self):
-    self._impeller_torque = self._engine.GetEngineTorque()
-
-    transmission_speed = self._transmission.GetTransmissionSpeed()
+    engine_torque = self._engine.GetEngineTorque()
     engine_speed = self._engine.GetEngineSpeed()
+    transmission_speed = self._transmission.GetTransmissionSpeed()
+    transmission_torque = self._transmission.GetTransmissionTorque()
+
     speed_ratio = transmission_speed / engine_speed
-    torque_multiplier = self._TorqueTransferMultiplier(speed_ratio)
-    transfer_coefficient = self._TurbineTransferCoefficient(speed_ratio)
+
+    torque_ratio = transmission_torque / engine_torque
+    capacity = self._Capacity(engine_speed, engine_torque, speed_ratio)
 
     logging.info("turbine-speed:impeller-speed = {}:{} = {}".format(transmission_speed, engine_speed, speed_ratio))
 
-    self._turbine_torque = torque_multiplier * transfer_coefficient * self._impeller_torque
-    logging.info("multiplier * coefficient * impeller_torque = {} * {} * {} = {}".format(torque_multiplier,
-                                                                                         transfer_coefficient,
-                                                                                         self._impeller_torque,
-                                                                                         self._turbine_torque))
+    self._impeller_torque = self._Sign(1 - speed_ratio) * math.pow(engine_speed / capacity, 2)
+    self._turbine_torque = self._impeller_torque * torque_ratio
 
-    """
-    # TODO these equations aren't quite right
-    impeller_speed = self._engine.GetEngineSpeed()
-    turbine_speed = self._transmission.GetTransmissionSpeed()
-    speed_ratio = 1
-
-    if turbine_speed != 0 and impeller_speed != 0:
-      # TODO add a lossy transfer function
-      speed_ratio = turbine_speed / impeller_speed
-
-    self._impeller_torque = impeller_speed / speed_ratio
-    self._impeller_torque *= self._impeller_torque
-    self._turbine_torque = self._impeller_torque
-    """
-
+    logging.info("(impeller_torque, turbine_torque) = ({}, {})".format(self._impeller_torque,
+                                                                       self._turbine_torque))
     self._transmission.StepOnce()
+
+  def _Capacity(self, engine_speed, engine_torque, speed_ratio):
+    if speed_ratio < 1.0:
+      return engine_speed / math.sqrt(engine_torque)
+    else:
+      return engine_speed
+
+  def _Sign(self, value):
+    if value < 0:
+      return -1
+    elif value == 0:
+      return 0
+    elif value > 0:
+      return 1
 
   def _TorqueTransferMultiplier(self, speed_ratio):
     # multiply torque when the turbine is spinning up
