@@ -1,4 +1,5 @@
 import logging
+import utilities.map_loader
 
 class Engine(object):
   def __init__(self):
@@ -65,64 +66,13 @@ class Engine(object):
     return self._torque_map[throttle_position][rpm]
 
   def _LoadTorqueMapFromFile(self, filename):
-    total_torque_values = 0
 
-    with open(filename) as f:
-      # drop the first item of the first line since its just a
-      # spacer representing the throttle position column
-      rpm_values = f.readline().split()[1:]
+    mapLoader = utilities.map_loader.MapLoader(filename)
 
-      logging.info(str(len(rpm_values)) + " RPM values")
+    self._torque_map, value_count = mapLoader.LinearlyInterpolate()
 
-      # count the rest of the lines remaining in the file (excluding the first line of RPM values)
-      throttle_position_count = sum(1 for line in f)
+    self._engine_max_speed = self._torque_map[0].keys()[-1]
 
-      logging.info(str(throttle_position_count) + " throttle position values")
-
-      # seek back to the second line to start loading torque values
-      f.seek(0)
-      f.readline()
-
-      for line in f:
-        # split off the first value representing the throttle position
-        throttle_position = int(line.split(' ', 1)[0])
-
-        if throttle_position not in self._torque_map:
-          self._torque_map[throttle_position] = dict()
-
-        # the rest are torque values for each RPM at that throttle position
-        torque_values = line.split()[1:]
-
-        if len(torque_values) != len(rpm_values):
-          raise Exception('Each RPM must have a torque value for throttle position ' + str(throttle_position))
-
-        for i in range(len(rpm_values) - 1):
-          # grab two rpm values
-          rpm_a = int(rpm_values[i])
-          rpm_b = int(rpm_values[i + 1])
-          rpm_diff = rpm_b - rpm_a
-
-          # grab the two associated torque values
-          torque_a = int(torque_values[i])
-          torque_b = int(torque_values[i + 1])
-          torque_diff = torque_b - torque_a
-
-          # force floating point division
-          ratio = torque_diff / float(rpm_diff)
-
-          for j in range(rpm_diff + 1):
-            rpm = rpm_a + j
-            torque = int(torque_a + (ratio * j))
-
-            if torque < 0:
-              raise Exception('negative torque {} for rpm {} resulting from rpm({}, {}), torque({}, {}), ratio {} at throttle {}'.format(torque, rpm, rpm_a, rpm_b, torque_a, torque_b, ratio, throttle_position))
-
-            self._torque_map[throttle_position][rpm] = torque
-            total_torque_values += 1
-
-          if i == len(rpm_values) - 2:
-            # set the max RPM for rev limiting
-            self._engine_max_speed = rpm_b
-
-    logging.info("Loaded " + str(total_torque_values) + " torque values")
+    logging.info("Loaded " + str(value_count) + " torque values")
+    logging.info("Max engine RPM " + str(self._engine_max_speed))
 
